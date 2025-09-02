@@ -5,8 +5,22 @@
 #include <iostream>
 #include <string>
 #include <malloc.h>
+#include <fstream>
+#include <sstream>
+
+static std::string parseShader(const std::string& filepath)
+{
+    std::ifstream stream(filepath);
+    std::stringstream ss;
 
 
+    if (!stream.is_open()) {
+        std::cout << "Could not open file: " << filepath << std::endl;
+    }
+    ss << stream.rdbuf();
+    stream.close();
+    return ss.str();
+}
 
 static unsigned int compileShader(unsigned int type, const std::string& source)
 {
@@ -104,25 +118,9 @@ int main(void)
 
     glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
 
-    std::string vertexShader = 
-        "#version 330 core\n"
-        "layout(location = 0) in vec4 position;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = position;\n"
-        "}\n";
+    std::string vertexShader = parseShader("../shaders/shader.vert");
 
-    std::string fragmentShader = 
-        "#version 330 core\n"
-        "layout(location = 0) out vec4 color;\n"
-        "\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   color = vec4(0.0, 1.0, 1.0, 1.0);\n"
-        "}\n";
-
+    std::string fragmentShader = parseShader("../shaders/shader.frag"); 
 
     unsigned int shader = createShader(vertexShader, fragmentShader);
     glUseProgram(shader);
