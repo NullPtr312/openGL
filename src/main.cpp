@@ -7,6 +7,28 @@
 #include <malloc.h>
 #include <fstream>
 #include <sstream>
+#include <cassert>
+
+#define GLCall(x) GLClearError();\
+x;\
+assert(GLLogError(#x, __FILE__, __LINE__));
+
+static void GLClearError()
+{
+    while (glGetError() != GL_NO_ERROR);
+}
+
+static bool GLLogError(const char* function, const char* file, int line)
+{
+    while (GLenum error = glGetError())
+    {
+        std::cout << "[OpenGL Error] (" << error << "): " << function << " " << file << ":" << line << std::endl;
+        return false;
+    }
+    return true;
+}
+
+
 
 static std::string parseShader(const std::string& filepath)
 {
@@ -143,12 +165,8 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-
-
-
-
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr));
+        
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
